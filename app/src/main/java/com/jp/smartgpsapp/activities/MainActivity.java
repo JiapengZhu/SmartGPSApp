@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
 
     private void goToLoginActivity(){
         Intent intent = new Intent(this,LoginActivity.class);
+        System.out.println("111");
         startActivity(intent);
     }
 
