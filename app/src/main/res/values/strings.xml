@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">SmartGPSApp</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="appTitle">Smart GPS</string>
+    <string name="login">Log in</string>
+    <string name="signUp">Sign Up</string>
+    <string name="email">Email Address</string>
+    <string name="password">Password</string>
+    <string name="rePassword">Re-password</string>
+    <string name="callsign">Callsign:</string>
+    <string name="username">User Name:</string>
+
+    <!-- Tab Strings-->
+    <string name="btSetting">Bluetooth Setting</string>
+    <string name="search">Search</string>
+    <string name="routing">Routing</string>
+    <string name="cmdSend">Send Command</string>
+    <string name="account">My Account</string>
+
+    <!-- Status string -->
+    <string name="loggingIn">Logging in ...</string>
+    <string name="scanning">Scanning for devices...</string>
+
+    <string name="linkToLogin">Already registered! Login Me</string>
+
+    <string name="registerErr1">Please enter a valid information</string>
+    <string name="registerErr2">Password do not match</string>
+
+    <string name="registerSuc">User successfully registered.</string>
+
+
+    <!-- bluetooth setting screen -->
+    <string name="btState">Enable/Disable Bluetooth</string>
+    <string name="btFlag">Status: </string>
+    <string name="displayPaired">Display Paired Devices</string>
+    <string name="otherDevice">Other Available Devices</string>
+    <string name="searchDevice">Search New Devices</string>
+    <string name="listPairedDevice">List Paired Devices</string>
+    <string name="btNotAvai">The bluetooth is NOT suported in this device!</string>
+    <string name="btOn">The bluetooth is ON</string>
+    <string name="btOff">The bluetooth is OFF</string>
+    <string name="btDeny">The bluetooth request is denied!</string>
+    <string name="none_found">No available devices found</string>
+
+    <!-- My account screen -->
+    <string name="editProfile">Edit My Profile</string>
+    <string name="logout">Log out</string>
+    <string name="setting">Setting</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
