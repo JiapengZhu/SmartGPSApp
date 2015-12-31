@@ -17,13 +17,14 @@ import com.jp.smartgpsapp.helpers.Constants;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
 /**
  * Created by Zhu on 2015-12-28.
  */
-public class BluetoothService {
+public class BluetoothService implements Serializable{
     // Debugging
     private static final String TAG = "BluetoothChatService";
 
@@ -272,7 +273,7 @@ public class BluetoothService {
      * like a server-side client. It runs until a connection is accepted
      * (or until cancelled).
      */
-    private class AcceptThread extends Thread {
+    private class AcceptThread extends Thread{
         // The local server socket
         private final BluetoothServerSocket mmServerSocket;
         private String mSocketType;
@@ -357,7 +358,7 @@ public class BluetoothService {
      * with a device. It runs straight through; the connection either
      * succeeds or fails.
      */
-    private class ConnectThread extends Thread {
+    private class ConnectThread extends Thread{
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
         private String mSocketType;
@@ -429,7 +430,7 @@ public class BluetoothService {
      * This thread runs during a connection with a remote device.
      * It handles all incoming and outgoing transmissions.
      */
-    private class ConnectedThread extends Thread {
+    private class ConnectedThread extends Thread{
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;

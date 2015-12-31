@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.jp.smartgpsapp.R;
 import com.jp.smartgpsapp.activities.MainMenuActivity;
 import com.jp.smartgpsapp.activities.SendSMS;
+import com.jp.smartgpsapp.helpers.Constants;
 import com.jp.smartgpsapp.helpers.SessionManager;
 import com.jp.smartgpsapp.services.BluetoothService;
 
@@ -33,13 +35,15 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  */
 public class SendCmdFragment extends Fragment {
-    private BluetoothService mBtService = null;
+    private final String TAG = "SendCmdFragment";
     private BluetoothAdapter btAdapter;
+    private BluetoothService btService;
     private Button sendCmdBtn, sendSmsBtn;
     private ListView cmdListView;
     private ArrayAdapter<String> listAdapter;
     private String command;
-    private SessionManager session;
+    private boolean isConnected = false;
+
     public SendCmdFragment() {
         // Required empty public constructor
     }
@@ -53,18 +57,24 @@ public class SendCmdFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getArguments().clear();
+    }
+
+    @Override
     public void onViewCreated(View v, Bundle savedInstanceState){
-        session = new SessionManager(getActivity().getApplicationContext());
+        btService = ((MainMenuActivity)getActivity()).getBtService();
         sendCmdBtn = (Button) v.findViewById(R.id.sendCmdBtn);
         sendSmsBtn = (Button) v.findViewById(R.id.sendSmsBtn);
         cmdListView = (ListView) v.findViewById(R.id.cmdListView);
-        command = null;
+        command = "";
         setupListView(listAdapter);
         cmdListView.setOnItemClickListener(mCmdClickListener);
         sendCmdBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendCommand(command);
+                sendMessage(command);
             }
         });
         sendSmsBtn.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +85,6 @@ public class SendCmdFragment extends Fragment {
 
             }
         });
-        mBtService = new BluetoothService(getActivity(), handler);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         if(!btAdapter.isEnabled()){
             displayDialog();
@@ -124,14 +133,14 @@ public class SendCmdFragment extends Fragment {
         cmdListView.setAdapter(arrAdapter);
     }
 
-    private void sendCommand(String cmd){
+    /*private void sendCommand(String cmd){
         if(cmd != null && cmd != ""){
             sendMessage(cmd);
         }else{
             Toast.makeText(getActivity(), R.string.not_select_cmd, Toast.LENGTH_SHORT).show();
         }
 
-    }
+    }*/
 
     private AdapterView.OnItemClickListener mCmdClickListener =
             new AdapterView.OnItemClickListener(){
@@ -143,33 +152,43 @@ public class SendCmdFragment extends Fragment {
         }
     };
 
-    private final Handler handler = new Handler(){
+    /*private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg){
             FragmentActivity activity = getActivity();
             switch (msg.what){
-                
+                case Constants.MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case BluetoothService.STATE_CONNECTED:
+                            isConnected = true;
+                            break;
+
+                    }
+                    break;
             }
         }
-    };
+    };*/
     private void sendMessage(String message) {
         // Check that we're actually connected before trying anything
-        /*if (mBtService.getState() != BluetoothService.STATE_CONNECTED) {
-            Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show();
-            return;
-        }*/
-        if(!session.isConnected()){
-            Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show();
-            return;
+        if(btService != null){
+            if(btService.getState() == 0){
+                Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Check that there's actually something to send
+            if (message.length() > 0) {
+                Log.d(TAG, "The command selected is " + command);
+                // Get the message bytes and tell the BluetoothChatService to write
+                byte[] send = message.getBytes();
+                btService.write(send);
+            }else{
+                Toast.makeText(getActivity(), R.string.not_select_cmd, Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            Toast.makeText(getActivity(), R.string.bt_error, Toast.LENGTH_SHORT).show();
         }
 
-        // Check that there's actually something to send
-        if (message.length() > 0) {
-            // Get the message bytes and tell the BluetoothChatService to write
-            byte[] send = message.getBytes();
-            mBtService.write(send);
-
-        }
     }
 
 

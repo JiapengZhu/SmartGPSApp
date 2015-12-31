@@ -42,6 +42,7 @@
     <string name="btOff">The bluetooth is OFF</string>
     <string name="btDeny">The bluetooth request is denied!</string>
     <string name="none_found">No available devices found</string>
+    <string name="bt_error">Bluetooth error, please restart your bluetooth</string>
 
     <!-- My account screen -->
     <string name="editProfile">Edit My Profile</string>

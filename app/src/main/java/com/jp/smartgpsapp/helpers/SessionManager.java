@@ -49,6 +49,7 @@ public class SessionManager {
     }
 
     public boolean isConnected(){
+        System.out.println("isConnected: "+pref.getBoolean(KEY_IS_CONNECTED,false));
         return pref.getBoolean(KEY_IS_CONNECTED, false);
     }
 

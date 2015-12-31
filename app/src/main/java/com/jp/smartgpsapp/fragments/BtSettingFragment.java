@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +29,7 @@ import android.widget.Toast;
 import com.jp.smartgpsapp.R;
 import com.jp.smartgpsapp.helpers.Constants;
 import com.jp.smartgpsapp.helpers.HandleProgressDialog;
-import com.jp.smartgpsapp.helpers.SessionManager;
+
 import com.jp.smartgpsapp.services.BluetoothService;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ import java.util.Set;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class BtSettingFragment extends Fragment {
+public class BtSettingFragment extends Fragment{
     private static final int REQUEST_ENABLE_BT=1;
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 2;
@@ -53,9 +54,13 @@ public class BtSettingFragment extends Fragment {
     private Set<BluetoothDevice> pairedDevice; // paired devices is stored in set
     private ArrayAdapter<String> pairedBtArrayAdapter, scannedBtArrayAdapter;
     private HandleProgressDialog pDialog;
+
+
+
+    //private OnDataPass dataPasser;
     private BluetoothService mBtService = null;
-    private SessionManager session = null;
     private String mConnectedDeviceName = null;
+    private boolean isReadArg = false;
     public BtSettingFragment() {
         // Required empty public constructor
     }
@@ -66,6 +71,25 @@ public class BtSettingFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_bt_setting, container, false);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+       /* Activity activity = (Activity) context;
+        try {
+            dataPasser = (OnDataPass) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement onDataPass");
+        }*/
+
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -132,7 +156,11 @@ public class BtSettingFragment extends Fragment {
         }
 
         mBtService = new BluetoothService(getActivity(), mHandler);
-        session = new SessionManager(getActivity().getApplicationContext());
+        /*if(!isReadArg){
+            isReadArg = true;
+            dataPasser.onDataPass(mBtService);
+        }*/
+
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         getActivity().registerReceiver(mReceiver, filter);
@@ -153,6 +181,7 @@ public class BtSettingFragment extends Fragment {
 
         // Unregister broadcast listeners
         getActivity().unregisterReceiver(mReceiver);
+        mBtService.stop();
     }
 
     /*
@@ -270,6 +299,12 @@ public class BtSettingFragment extends Fragment {
         public void handleMessage(Message msg){
             FragmentActivity activity = getActivity();
             switch (msg.what){
+                case Constants.MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case BluetoothService.STATE_CONNECTED:
+                            break;
+                    }
+                    break;
                 case Constants.MESSAGE_DEVICE_NAME:
                     // save the connected device's name
                     mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
@@ -300,12 +335,7 @@ public class BtSettingFragment extends Fragment {
                     // Get the device MAC address, which is the last 17 chars in the View
                     String info = ((TextView) view).getText().toString();
                     String address = info.substring(info.length() - 17);
-                    if(!session.isConnected()){
-                        connectDevice(address, true);
-                        if(mBtService.getState() == BluetoothService.STATE_CONNECTED ){
-                            session.setConnected(true);
-                        }
-                    }
+                    connectDevice(address, true);
                 }
             };
     private void connectDevice(String address, boolean secure) {
@@ -315,4 +345,11 @@ public class BtSettingFragment extends Fragment {
         mBtService.connect(device, secure);
     }
 
+    public BluetoothService getmBtService() {
+        return mBtService;
+    }
+
+   /* public interface OnDataPass {
+        public void onDataPass(BluetoothService btService);
+    }*/
 }
