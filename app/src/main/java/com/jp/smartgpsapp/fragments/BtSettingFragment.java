@@ -9,7 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +26,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jp.smartgpsapp.R;
+import com.jp.smartgpsapp.helpers.Constants;
 import com.jp.smartgpsapp.helpers.HandleProgressDialog;
+import com.jp.smartgpsapp.helpers.SessionManager;
+import com.jp.smartgpsapp.services.BluetoothService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +40,10 @@ import java.util.Set;
  */
 public class BtSettingFragment extends Fragment {
     private static final int REQUEST_ENABLE_BT=1;
+    public static String EXTRA_DEVICE_ADDRESS = "device_address";
+    private static final int REQUEST_CONNECT_DEVICE_SECURE = 2;
+    private static final int REQUEST_CONNECT_DEVICE_INSECURE = 3;
+    private static final String TAG = "BtSettingFragment";
     private boolean isDenied = true;
     private Button searchBtn, listDeviceBtn;
     private Switch btStateSwitch;
@@ -43,6 +53,9 @@ public class BtSettingFragment extends Fragment {
     private Set<BluetoothDevice> pairedDevice; // paired devices is stored in set
     private ArrayAdapter<String> pairedBtArrayAdapter, scannedBtArrayAdapter;
     private HandleProgressDialog pDialog;
+    private BluetoothService mBtService = null;
+    private SessionManager session = null;
+    private String mConnectedDeviceName = null;
     public BtSettingFragment() {
         // Required empty public constructor
     }
@@ -68,11 +81,14 @@ public class BtSettingFragment extends Fragment {
 
         pairedListView = (ListView) v.findViewById(R.id.pairedDeviceLt);
         scannedListView = (ListView) v.findViewById(R.id.availableDeviceLt);
-
+        // Find and set up the ListView for paired devices
         pairedBtArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
         pairedListView.setAdapter(pairedBtArrayAdapter);
+        pairedListView.setOnItemClickListener(mDeviceClickListener);
+        // Find and set up the ListView for newly discovered devices
         scannedBtArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
         scannedListView.setAdapter(scannedBtArrayAdapter);
+        scannedListView.setOnItemClickListener(mDeviceClickListener);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         if(btAdapter == null ){
@@ -114,6 +130,9 @@ public class BtSettingFragment extends Fragment {
             });
 
         }
+
+        mBtService = new BluetoothService(getActivity(), mHandler);
+        session = new SessionManager(getActivity().getApplicationContext());
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         getActivity().registerReceiver(mReceiver, filter);
@@ -198,15 +217,6 @@ public class BtSettingFragment extends Fragment {
                 pairedBtArrayAdapter.add(device.getName() + "\n" + device.getAddress());
             }
         }
-        pairedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String info = ((TextView) view).getText().toString();
-                String deviceName = info.substring(0, info.length() - 17);
-                String deviceAddress = info.substring(info.length() - 17);
-            }
-        });
         Toast.makeText(getActivity().getApplicationContext(),
                 R.string.displayPaired, Toast.LENGTH_LONG).show();
     }
@@ -228,6 +238,7 @@ public class BtSettingFragment extends Fragment {
         scannedBtArrayAdapter.clear();
         pairedBtArrayAdapter.clear();
     }
+
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -254,5 +265,54 @@ public class BtSettingFragment extends Fragment {
         }
     };
 
+    private final Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg){
+            FragmentActivity activity = getActivity();
+            switch (msg.what){
+                case Constants.MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
+                    if (null != activity) {
+                        Toast.makeText(activity, "Connected to "
+                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case Constants.MESSAGE_TOAST:
+                    if (null != activity) {
+                        Toast.makeText(activity, msg.getData().getString(Constants.TOAST),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+        }
+
+    };
+
+    private AdapterView.OnItemClickListener mDeviceClickListener =
+            new AdapterView.OnItemClickListener(){
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view,
+                                        int position, long id) {
+                    btAdapter.cancelDiscovery();
+
+                    // Get the device MAC address, which is the last 17 chars in the View
+                    String info = ((TextView) view).getText().toString();
+                    String address = info.substring(info.length() - 17);
+                    if(!session.isConnected()){
+                        connectDevice(address, true);
+                        if(mBtService.getState() == BluetoothService.STATE_CONNECTED ){
+                            session.setConnected(true);
+                        }
+                    }
+                }
+            };
+    private void connectDevice(String address, boolean secure) {
+        // Get the BluetoothDevice object
+        BluetoothDevice device = btAdapter.getRemoteDevice(address);
+        // Attempt to connect to the device
+        mBtService.connect(device, secure);
+    }
 
 }

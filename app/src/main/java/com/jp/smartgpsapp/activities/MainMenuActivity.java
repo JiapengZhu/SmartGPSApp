@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainMenuActivity extends FragmentActivity implements ActionBar.TabListener{
-    private ViewPager mViewPager;
+    private static ViewPager mViewPager;
     private ActionBar actionBar;
 
     @Override
@@ -72,5 +72,9 @@ public class MainMenuActivity extends FragmentActivity implements ActionBar.TabL
             actionBar.addTab(actionBar.newTab().setText(adapter.getPageTitle(i)).setTabListener(this));
         }
         viewPager.setAdapter(adapter);
+    }
+
+    public static ViewPager getmViewPager(){
+        return mViewPager;
     }
 }

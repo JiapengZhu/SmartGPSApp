@@ -48,6 +48,16 @@
     <string name="logout">Log out</string>
     <string name="setting">Setting</string>
 
+    <!-- send command screen -->
+    <string name="cmd1">Sample Command One</string>
+    <string name="cmd2">Sample Command Two</string>
+    <string name="cmd3">Sample Command Three</string>
+    <string name="send_cmd_txtView">Please select one command you want to send below</string>
+    <string name="sendSMS">Send SMS</string>
+    <string name="not_connected">You are not connected to a device</string>
+    <string name="not_select_cmd">You have not selected a command</string>
+    <!-- Send SMS screen -->
+    <string name="sendSmsTxt">Please type in the SMS message below</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

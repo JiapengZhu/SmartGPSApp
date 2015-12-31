@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.jp.smartgpsapp.fragments.BlankFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +15,12 @@ import java.util.List;
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
+    private Fragment mFragmentAtPos_0;
+    private final FragmentManager mFragmentManager;
 
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
+        mFragmentManager = fm;
     }
 
     @Override
@@ -37,4 +42,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         return mFragmentTitleList.get(position);
     }
 
+    public void routeToBtSetting(){
+
+    }
 }

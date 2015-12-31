@@ -24,7 +24,7 @@ public class SessionManager {
     private static final String PREF_NAME = "AndroidPref";
 
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
-    private static final String KEY_IS_BT_ON = "isBtOn";
+    private static final String KEY_IS_CONNECTED = "isBtOn";
 
     public SessionManager(Context context) {
         this._context = context;
@@ -42,14 +42,14 @@ public class SessionManager {
         Log.d(TAG, "User login session modified!");
     }
 
-    public void setBtOn(boolean isBtOn){
-        editor.putBoolean(KEY_IS_BT_ON, isBtOn);
+    public void setConnected(boolean isConnected){
+        editor.putBoolean(KEY_IS_CONNECTED, isConnected);
         editor.commit();
-        Log.d(TAG, "Bluetooth status is modified");
+        Log.d(TAG, "Device is connected");
     }
 
-    public boolean isBtOn(){
-        return pref.getBoolean(KEY_IS_BT_ON, false);
+    public boolean isConnected(){
+        return pref.getBoolean(KEY_IS_CONNECTED, false);
     }
 
     public boolean isLoggedIn(){
